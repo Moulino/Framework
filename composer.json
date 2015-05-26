@@ -10,7 +10,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.3.29",
+        "php": ">=5.3.29"
     },
     "autoload": {
         "psr-4": {
