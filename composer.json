@@ -1,0 +1,21 @@
+{
+    "name": "moulino/framework",
+    "description": "Simple php framework using the mvc pattern.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Moulino",
+            "email": "olive.emmanuel@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.29",
+    },
+    "autoload": {
+        "psr-4": {
+            "Moulino\\Framework": "src/",
+            "Moulino\\Tests\\Framework": "tests/"
+        }
+    }
+}
