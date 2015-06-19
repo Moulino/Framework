@@ -2,9 +2,6 @@
 
 namespace Moulino\Framework\Model;
 
-use Moulino\Framework\Database;
-use Moulino\Framework\Service\Config;
-
 Interface ModelInterface
 {	
 	public function add($parameters);

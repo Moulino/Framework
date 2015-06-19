@@ -9,28 +9,46 @@ class Request
 	private $method;
 	private $get = array('test');
 	private $post = array();
-	private $format = array();
+	private $format = '';
 	private $formats = array(
-		'html' => array('text/html', 'application/xhtml+xml'),
-		'txt'  => array('text/plain'),
-		'js'   => array('application/javascript', 'application/x-javascript', 'text/javascript'),
-		'css'  => array('text/css'),
-		'json' => array('application/json', 'application/x-json'),
-		'xml'  => array('text/xml', 'application/xml', 'application/x-xml'),
-		'rdf'  => array('application/rdf+xml'),
-		'atom' => array('application/atom+xml'),
-		'rss'  => array('application/rss+xml'),
+		'html' => array('text/html'),
+		'json' => array('application/json')
 	);
 
 	public function load() {
-		$this->uri = $_SERVER['REQUEST_URI'];
+		$this->uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->get = $_GET;
 		$this->post = $_POST;
 	}
 
 	public function getFormat() {
+		if(!empty($this->format)) return $this->format;
 
+		$mimeTypesAccepted = $_SERVER['HTTP_ACCEPT'];
+
+		if(false !== $pos = strpos($mimeTypesAccepted, ';')) {
+			$mimeTypesAccepted = substr($mimeTypesAccepted, 0, $pos);
+		}
+
+		$mimeTypesAccepted = explode(',', $mimeTypesAccepted);
+
+		$this->format = 'html';
+		foreach ($this->formats as $format => $mimeTypes) {
+
+			foreach ($mimeTypesAccepted as $mimeTypeAccepted) {
+				if(in_array($mimeTypeAccepted, $mimeTypes)) {
+					$this->format = $format;
+					break;
+				}
+			}
+		}
+		return $this->format;
+	}
+
+	public function getMimeType($format = '') {
+		$format = $this->getFormat();
+		return $this->formats[$format][0];
 	}
 
 	public function getParameter($key, $method = 'GET') {
@@ -38,8 +56,7 @@ class Request
 		if(isset($this->{$attr}[$key])) {
 			return $this->{$attr}[$key];
 		}
-
-		throw new \Exception("Attribut '$key' introuvable dans la variable $method");
+		return null;
 	}
 
 	public function setParameter($key, $value, $method = 'GET') {
@@ -63,7 +80,9 @@ class Request
 		$this->method = $method;
 	}
 
-	
+	public function isAjax() {
+		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') ? true : false;
+	}
 }
 
 ?>

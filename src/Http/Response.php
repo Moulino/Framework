@@ -79,7 +79,7 @@ class Response
      * @param $headers Http headers
      * @param $format Format of the response ['html', 'json']
      */
-	public function __construct($content = '', $statusCode = 200, $headers = array()) {
+	public function __construct($content = '', $statusCode = 200, array $headers = array()) {
         $this->content    = $content;
         $this->headers    = $headers;
         $this->statusCode = $statusCode;
@@ -94,7 +94,7 @@ class Response
 		}
 
         if(!array_key_exists('Content-Type', $this->headers)) {
-            header('Content-Type: text/html; charset=utf-8');
+            header('Content-Type: text/html; charset=iso-8859-1');
         }
 
 		echo $this->content;
@@ -116,8 +116,20 @@ class Response
 		$this->content = $content;
 	}
 
+    public function getHeaders() {
+        return $this->headers;
+    }
+
+    public function setHeaders(array $headers = array()) {
+        $this->headers = $headers;
+    }
+
+    public function setContentType($contentType) {
+        $this->headers['Content-Type'] = $contentType;
+    }
+
 	public function redirect($location) {
-		$this->headers[] = 'Location: '.$location;
+		$this->headers['Location'] = $location;
 	}
 }
 

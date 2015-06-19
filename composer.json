@@ -1,6 +1,7 @@
 {
     "name": "moulino/framework",
     "description": "Simple php framework using the mvc pattern.",
+    "type": "framework",
     "license": "MIT",
     "authors": [
         {
@@ -11,6 +12,11 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.3.29"
+    },
+    "require-dev": {
+        "php": ">=5.3.3",
+        "phpunit/phpunit": "4.6.*",
+        "mockery/mockery": "0.9.4"
     },
     "autoload": {
         "psr-4": {

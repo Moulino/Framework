@@ -2,8 +2,8 @@
 
 namespace Moulino\Framework\Model;
 
-use Moulino\Framework\Service\Database;
-use Moulino\Framework\Service\Config;
+use Moulino\Framework\Database\DatabaseInterface;
+use Moulino\Framework\Config\ConfigInterface;
 
 class Model implements ModelInterface
 {
@@ -11,11 +11,15 @@ class Model implements ModelInterface
 	protected $entityName;
 	protected $tableName;
 	
-	public function __construct(Config $config, Database $database, $entityName)
+	public function __construct(DatabaseInterface $database, $entityName, $tableName)
 	{
 		$this->connexion = $database->getConnexion();
 		$this->entityName = $entityName;
-		$this->tableName = $config->get('entities', $entityName, 'table');
+		$this->tableName = $tableName;
+	}
+
+	public function getEntityName() {
+		return $this->entityName;
 	}
 
 	public function add($parameters) {
@@ -159,9 +163,43 @@ class Model implements ModelInterface
 		$this->connexion->exec("DELETE FROM $this->tableName");
 	}
 
-	public function count() {
-		$statement = $this->connexion->query("SELECT * FROM $this->tableName");
-		return $statement->rowCount();
+	public function count($criteria = array()) {
+		$sql = "SELECT COUNT(*) FROM $this->tableName WHERE";
+		$queryParameters = null;
+
+		if(is_array($criteria)) {
+			$number = 0;
+			foreach ($criteria as $key => $value) {
+				if($number > 0) {
+					$sql .= " AND";
+				}
+
+				$sql .= " $key = :$key";
+				$number++;
+			}
+			$sql .= ';';
+
+			$queryParameters = $criteria;
+		} else {
+			$sql .= " id = :id";
+			$queryParameters = array(
+				'id' => intval($criteria)
+				);
+		}
+
+		try {
+			$query = $this->connexion->prepare($sql);
+		} catch(\PDOException $e) {
+
+		}
+
+		if($query->execute($queryParameters)) {
+			if(($result = $query->fetch()) != false) {
+				return intval($result[0]);
+			}
+		} else {
+			
+		}
 	}
 }
 
