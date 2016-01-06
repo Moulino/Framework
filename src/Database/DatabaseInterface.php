@@ -4,7 +4,7 @@ namespace Moulino\Framework\Database;
 
 interface DatabaseInterface
 {
-	public function getConnexion();
+	public function getConnection();
 }
 
 ?>

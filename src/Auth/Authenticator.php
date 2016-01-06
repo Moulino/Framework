@@ -23,6 +23,7 @@ class Authenticator implements AuthenticatorInterface
 	const LOCKED_USER_MESSAGE  = "Account locked";
 	const UNKNOWN_USER_MESSAGE = "Unknown username";
 	const WRONG_PASSWORD       = "Wrong password";
+	const USER_NOT_LOGGED      = "User is not logged";
 
 	/**
 	 * Constructor
@@ -30,8 +31,8 @@ class Authenticator implements AuthenticatorInterface
 	public function __construct(SessionInterface $session, ModelInterface $model, TranslatorInterface $translator, $salt) {
 		$this->session 		= $session;
 		$this->model   		= $model;
-		$this->translator = $translator;
-		$this->salt  			= $salt;
+		$this->translator 	= $translator;
+		$this->salt  		= $salt;
 	}
 
 	/**
@@ -67,12 +68,13 @@ class Authenticator implements AuthenticatorInterface
 			throw new BadCredentialsException($this->translator->tr(self::LOCKED_USER_MESSAGE), 403);
 		}
 
-		$passEnc = sha1(sha1($password).$this->salt);
+		$passEnc = $this->encodePassword($password);
 
 		if($user['password'] == $passEnc) {
 			$this->session->write('auth', array(
 				'remoteAddr' => $remoteAddr,
 				'user_id'    => $user['user_id'],
+				'name' 		 => $user['name'],
 				'roles'      => (is_null($user['roles'])) ? array() : explode(',', $user['roles'])
 				));
 
@@ -100,8 +102,46 @@ class Authenticator implements AuthenticatorInterface
 		return array(
 			'authenticated' => isset($auth['user_id']),
 			'user_id'       => isset($auth['user_id']) ? $auth['user_id'] : '',
-			'roles' 				=> isset($auth['roles']) ? $auth['roles'] : array()
+			'name' 			=> isset($auth['name']) ? $auth['name'] : '',
+			'roles'         => isset($auth['roles']) ? $auth['roles'] : array()
 		);
 	}
+
+	/**
+	 * Return the password encoded
+	 * @param string ununcrypted password
+	 * @return string encrypted password
+	 */
+	public function encodePassword($password) {
+		return sha1(sha1($password).$this->salt);
+	}
+
+	public function checkPassword($password) {
+		$auth = $this->session->read('auth');
+
+		if(!isset($auth['user_id'])) {
+			throw new BadCredentialsException(self::USER_NOT_LOGGED);
+		}
+
+		$userId = $auth['user_id'];
+		$user = $this->model->get(array('user_id' => $userId));
+		$passEnc = sha1(sha1($password).$this->salt);
+
+		return $passEnc === $user['password'];
+	}
+
+	/**
+	 * Check if the user has the role specified.
+	 * @param string Role name
+	 * @return boolean
+	 */
+	public function hasRole($role) {
+		$auth = $this->session->read('auth');
+		if(!isset($auth['roles'])) return false;
+		
+		return in_array($role, $auth['roles']);
+	}
+
+
 	
 } ?>

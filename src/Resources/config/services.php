@@ -18,7 +18,7 @@ return array(
 
 	'validator' => array(
 		'class' => 'Moulino\\Framework\\Validation\\Validator',
-		'arguments' => array('%entities%')
+		'arguments' => array('@translator', '%entities%')
 	),
 
 	'session' => array(
@@ -77,7 +77,12 @@ return array(
 	'error_handler' => array(
 		'class' => 'Moulino\\Framework\\Core\\ErrorHandler',
 		'arguments' => array('@logger', '@view', '%app.mode%')
-	)
+	),
+
+	'mailer' => array(
+		'class' => 'Moulino\\Framework\\Mail\\Mailer',
+		'arguments' => array('@logger')
+	),
 );
 
 ?>

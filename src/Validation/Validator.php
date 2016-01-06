@@ -19,10 +19,12 @@ use Moulino\Framework\Config\ConfigInterface;
 
 class Validator implements ValidatorInterface
 {
+	private $translator;
 	private $entityConfig;
 	private $violationList; // constraint violation list
 
-	function __construct(array $entityConfig) {
+	function __construct($translator, array $entityConfig) {
+		$this->translator = $translator;
 		$this->entityConfig = $entityConfig;
 		$this->violationList = new ConstraintViolationList();
 	}
@@ -44,7 +46,8 @@ class Validator implements ValidatorInterface
 					$class = 'Moulino\\Framework\\Validation\\Constraint\\'.ucfirst($constraint).'Validator';
 
 					if(class_exists($class)) {
-						$constraintValidator = new $class();
+						$constraintValidator = new $class($this->translator);
+
 						$violation = $constraintValidator->validate($field, $data[$field], $model);
 
 						if($violation instanceof ConstraintViolationInterface) {

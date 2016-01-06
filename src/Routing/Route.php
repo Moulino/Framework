@@ -31,7 +31,7 @@ class Route
 	 */
 	public function match($uri) {
 		$path = preg_replace_callback('#:([\w]+)#', array($this, 'paramToSequence'), $this->path);
-		$regex = '#^'.$path.'$#';
+		$regex = '#'.$path.'#';
 
 		if(preg_match($regex, $uri, $matches)) {
 			array_shift($matches);

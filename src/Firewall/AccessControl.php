@@ -30,8 +30,6 @@ class AccessControl implements AccessControlInterface
 
 	public function isAuthorized(Request $request) {
 		$uri = $request->getUri();
-		//var_dump($uri);
-
 		foreach ($this->rules as $rule) {
 			$regex = '#'.$rule->getPath().'#';
 
@@ -43,7 +41,7 @@ class AccessControl implements AccessControlInterface
 
 				$authInfo = $this->authenticator->getAuthInfo();
 				if($authInfo['authenticated']) {
-					if($rule->hasRole('IS_AUTHENTICATED_ANONYMOUSLY')) {
+					if($rule->hasRole('IS_AUTHENTICATED')) {
 						return true;
 					}
 

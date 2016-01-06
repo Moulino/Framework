@@ -7,13 +7,13 @@ use Moulino\Framework\Config\ConfigInterface;
 
 class Model implements ModelInterface
 {
-	protected $connexion;
+	protected $connection;
 	protected $entityName;
 	protected $tableName;
 	
 	public function __construct(DatabaseInterface $database, $entityName, $tableName)
 	{
-		$this->connexion = $database->getConnexion();
+		$this->connection = $database->getConnection();
 		$this->entityName = $entityName;
 		$this->tableName = $tableName;
 	}
@@ -46,18 +46,26 @@ class Model implements ModelInterface
 		}
 		$sql .= ");";
 
-		$query = $this->connexion->prepare($sql);
+		$query = $this->connection->prepare($sql);
 		if(!$query->execute($parameters)) {
-			$error = $this->connexion->errorInfo();
+			$error = $this->connection->errorInfo();
 			throw new \Exception("Erreur lors de l'ajout de l'element.", $error[1]);
 		}
 	}
 
-	public function get($criteria) {
+	public function get($criteria, $filters = null) {
 		$sql = "SELECT * FROM $this->tableName WHERE";
 		$queryParameters = null;
 
-		if(is_array($criteria)) {
+		if(is_numeric($criteria)) {
+			$criteria = intval($criteria);
+		}
+
+		if(is_string($criteria)) {
+			$sql .= " $criteria";
+		}
+
+		else if(is_array($criteria)) {
 			$number = 0;
 			foreach ($criteria as $key => $value) {
 				if($number > 0) {
@@ -67,19 +75,26 @@ class Model implements ModelInterface
 				$sql .= " $key = :$key";
 				$number++;
 			}
-			$sql .= ';';
 
 			$queryParameters = $criteria;
-		} else {
+		} 
+
+		else {
 			$sql .= " id = :id";
 			$queryParameters = array(
 				'id' => intval($criteria)
 				);
 		}
 
-		$query = $this->connexion->prepare($sql);
+		if(is_string($filters)) {
+			$sql .= " $filters";
+		}
+
+		$sql .= ';';
+
+		$query = $this->connection->prepare($sql);
 		$query->execute($queryParameters);
-		return $query->fetch();
+		return $query->fetch(\PDO::FETCH_ASSOC);
 	}
 
 	public function set($criteria, $parameters) {
@@ -117,21 +132,50 @@ class Model implements ModelInterface
 				$sql .= " $key = :$key";
 				$number++;
 			}
-			$sql .= ';';
 		} else {
 			$sql .= " id = :id";
 		}
 
-		$query = $this->connexion->prepare($sql);
+		$sql .= ";";
+
+		$query = $this->connection->prepare($sql);
 		return $query->execute($queryParameters);
 	}
 
-	public function cget() {
-		$sql = "SELECT * FROM $this->tableName;";
+	public function cget($criteria = null, $filters = null) {
+		$sql = "SELECT * FROM $this->tableName";
+		$queryParameters = null;
 
-		$query = $this->connexion->prepare($sql);
-		$query->execute();
-		return $query->fetchAll();
+		if(is_string($criteria)) {
+			$sql .= " WHERE $criteria";
+		}
+
+		if(is_array($criteria)) {
+			$sql .= " WHERE";
+			$number = 0;
+
+			foreach ($criteria as $key => $value) {
+				if($number === 0) {
+					$sql .= " WHERE";
+				}
+				else if($number > 0) {
+					$sql .= " AND";
+				}
+				$sql .= " $key = :$key";
+				$number++;
+			}
+			$queryParameters = $criteria;
+		}
+
+		if(is_string($filters)) {
+			$sql .= " $filters";
+		}
+
+		$sql .= ";";
+
+		$query = $this->connection->prepare($sql);
+		$query->execute($queryParameters);;
+		return $query->fetchAll(\PDO::FETCH_ASSOC);
 	}
 
 	public function remove($criteria) {
@@ -155,12 +199,12 @@ class Model implements ModelInterface
 		}
 		$sql .= ';';
 
-		$query = $this->connexion->prepare($sql);
+		$query = $this->connection->prepare($sql);
 		return $query->execute($queryParameters);
 	}
 
 	public function removeAll() {
-		$this->connexion->exec("DELETE FROM $this->tableName");
+		$this->connection->exec("DELETE FROM $this->tableName");
 	}
 
 	public function count($criteria = array()) {
@@ -188,7 +232,7 @@ class Model implements ModelInterface
 		}
 
 		try {
-			$query = $this->connexion->prepare($sql);
+			$query = $this->connection->prepare($sql);
 		} catch(\PDOException $e) {
 
 		}
@@ -200,6 +244,10 @@ class Model implements ModelInterface
 		} else {
 			
 		}
+	}
+	
+	public function errorInfo() {
+		return $this->connection->errorInfo();
 	}
 }
 

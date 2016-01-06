@@ -23,14 +23,16 @@ abstract class AbstractController implements ControllerInterface
 	}
 
 	public function render($view, $vars = array()) {
+		return new Response($this->renderView($view, $vars));
+	}
 
+	public function renderView($view, $vars = array()) {
 		$folder = ucfirst(strstr($view, ':', true));
 		$file = substr(strstr($view, ':'), 1).'.php';
 
 		$filepath = VIEW.DS.$folder.DS.$file;
 		
-		$content = $this->view->render($filepath, $vars);
-		return new Response($content);
+		return $this->view->render($filepath, $vars);
 	}
 
 	public function renderValidationInJson(ConstraintViolationListInterface $list) {

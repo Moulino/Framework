@@ -2,6 +2,8 @@
 
 namespace Moulino\Framework\Http;
 
+use Moulino\Framework\Config\Config;
+
 class Response
 {
 	private $content;
@@ -83,18 +85,22 @@ class Response
         $this->content    = $content;
         $this->headers    = $headers;
         $this->statusCode = $statusCode;
+        $this->charset = Config::get('app.charset') ?: 'UTF-8';
 	}
 
-	public function send() {
+	public function send(Request $request) {
 		$statusText = $this->statusText[$this->statusCode];
 		header(sprintf('HTTP/%s %s %s', $this->httpVersion, $this->statusCode, $this->statusText[$this->statusCode]));
 		
 		foreach ($this->headers as $key => $value) {
-			header($key.': '.$value);
+			header($key.' : '.$value);
 		}
 
         if(!array_key_exists('Content-Type', $this->headers)) {
-            header('Content-Type: text/html; charset=iso-8859-1');
+            $mimeType = $request->getMimeType();
+            $charset = $this->charset;
+
+            header("Content-Type: $mimeType;charset=$charset");
         }
 
 		echo $this->content;
@@ -122,10 +128,6 @@ class Response
 
     public function setHeaders(array $headers = array()) {
         $this->headers = $headers;
-    }
-
-    public function setContentType($contentType) {
-        $this->headers['Content-Type'] = $contentType;
     }
 
 	public function redirect($location) {

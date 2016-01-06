@@ -38,7 +38,7 @@ class Kernel
 		$this->accessControl = $accessControl;
 		$this->translator    = $translator;
 		$this->errorHandler  = $errorHandler;
-		$this->charset 			 = $charset;
+		$this->charset 		 = $charset;
 	}
 
 	public function run() {
@@ -46,7 +46,7 @@ class Kernel
 		$request->load();
 
 		$response = $this->handle($request);
-		$response->send();
+		$response->send($request);
 	}
 
 	private function handle(Request $request) {
@@ -68,13 +68,7 @@ class Kernel
 		}	catch (\Exception $e) {
 			$response = $this->errorHandler->handleException($e, $request->getFormat());
 		}
-
-		$response->setContentType($this->getContentType($request));
 		return $response;
-	}
-
-	private function getContentType($request) {
-		return $request->getMimeType() .';charset='.$this->charset;
 	}
 
 } ?>

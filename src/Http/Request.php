@@ -20,6 +20,9 @@ class Request
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->get = $_GET;
 		$this->post = $_POST;
+
+		/*$encoding = mb_detect_encoding($_POST['name']);
+		print_r($encoding);*/
 	}
 
 	public function getFormat() {
@@ -46,7 +49,7 @@ class Request
 		return $this->format;
 	}
 
-	public function getMimeType($format = '') {
+	public function getMimeType() {
 		$format = $this->getFormat();
 		return $this->formats[$format][0];
 	}
