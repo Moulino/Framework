@@ -26,7 +26,7 @@ class Request
 	}
 
 	private function loadPath($uri) {
-		$regex = '#^([[:alnum:]_\/]*)\??.*$#';
+		$regex = '#^([[:alnum:]_\-\/\.]*)\??.*$#';
 
 		if(preg_match($regex, $uri, $matches)) {
 			return $matches[1];
