@@ -58,7 +58,6 @@ class Logger implements LoggerInterface
 		$message .="--$boundary--\n";
 
 		$this->mailer->send($sender, $receiver, $subject, $message, $boundary);
-
 	}
 }
 
