@@ -45,19 +45,21 @@ class Logger implements LoggerInterface
 	}
 
 	private function sendMail($text) {
-		$sender   = $this->config['sender'];
-		$receiver = $this->config['receiver'];
-		$subject  = $this->config['subject'];
-		$boundary = $this->mailer->generateBoundary();
+		if($this->config['enable_mailer'] === true) {
+			$sender   = $this->config['sender'];
+			$receiver = $this->config['receiver'];
+			$subject  = $this->config['subject'];
+			$boundary = $this->mailer->generateBoundary();
 
-		$text = quoted_printable_encode($text);
-		$message = "\n--$boundary\n";
-		$message .="Content-Type: text/plain; charset=UTF-8\n";
-		$message .="Content-Transfer-Encoding: quoted-printable\n\n";
-		$message .="$text\n\n";
-		$message .="--$boundary--\n";
+			$text = quoted_printable_encode($text);
+			$message = "\n--$boundary\n";
+			$message .="Content-Type: text/plain; charset=UTF-8\n";
+			$message .="Content-Transfer-Encoding: quoted-printable\n\n";
+			$message .="$text\n\n";
+			$message .="--$boundary--\n";
 
-		$this->mailer->send($sender, $receiver, $subject, $message, $boundary);
+			$this->mailer->send($sender, $receiver, $subject, $message, $boundary);
+		}
 	}
 }
 
