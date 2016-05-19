@@ -6,6 +6,7 @@ class Request
 {
 
 	private $uri; //url appelée par l'utilisateur
+	private $path;
 	private $method;
 	private $get = array('test');
 	private $post = array();
@@ -21,8 +22,16 @@ class Request
 		$this->get = $_GET;
 		$this->post = $_POST;
 
-		/*$encoding = mb_detect_encoding($_POST['name']);
-		print_r($encoding);*/
+		$this->path = $this->loadPath($this->uri);
+	}
+
+	private function loadPath($uri) {
+		$regex = '#^([[:alnum:]_\/]*)\??.*$#';
+
+		if(preg_match($regex, $uri, $matches)) {
+			return $matches[1];
+		}
+		return $uri;
 	}
 
 	public function getFormat() {
@@ -81,6 +90,10 @@ class Request
 
 	public function setMethod($method) {
 		$this->method = $method;
+	}
+
+	public function getPath() {
+		return $this->path;
 	}
 
 	public function isAjax() {

@@ -49,7 +49,7 @@ class Model implements ModelInterface
 		$query = $this->connection->prepare($sql);
 		if(!$query->execute($parameters)) {
 			$error = $this->connection->errorInfo();
-			throw new \Exception("Erreur lors de l'ajout de l'element.", $error[1]);
+			throw new \Exception("Erreur lors de l'ajout de l'element. SQL : $sql", $error[1]);
 		}
 	}
 

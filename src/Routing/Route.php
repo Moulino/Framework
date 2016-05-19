@@ -26,14 +26,14 @@ class Route
 	}
 
 	/**
-	 * Checks if the route match the uri
-	 * @param $uri Uri
+	 * Checks if the route match the request path
+	 * @param $path Uri
 	 */
-	public function match($uri) {
+	public function match($requestPath) {
 		$path = preg_replace_callback('#:([\w]+)#', array($this, 'paramToSequence'), $this->path);
 		$regex = '#'.$path.'#';
 
-		if(preg_match($regex, $uri, $matches)) {
+		if(preg_match($regex, $requestPath, $matches)) {
 			array_shift($matches);
 			$this->arguments = $matches;
 			return true;
