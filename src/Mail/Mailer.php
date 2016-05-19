@@ -3,7 +3,7 @@
 namespace Moulino\Framework\Mail;
 
 use Moulino\Framework\Mail\Exception\MailNoSentException;
-use Moulino\Framework\Log\LoggerInterface;
+use Moulino\Framework\Log\MailLoggerInterface;
 
 /**
 * 
@@ -12,7 +12,7 @@ class Mailer implements MailerInterface
 {
 	private $logger;
 	
-	function __construct(LoggerInterface $logger) {
+	function __construct(MailLoggerInterface $logger) {
 		$this->logger = $logger;
 	}
 
@@ -21,19 +21,9 @@ class Mailer implements MailerInterface
 
 		if(!mail($receiver, $subject, $message, $header)) {
 			throw new MailNoSentException("Erreur lors de l'envoi du mail.");
-			$this->logError($sender, $receiver, $subject, $message);
+			$this->logger->error($sender, $receiver, $subject, $message);
 		}
-		$this->logInfo($sender, $receiver, $subject, $message);
-	}
-
-	private function logError($sender, $receiver, $subject, $message) {
-		$text = "Error when sending mail : [Sender='$sender'] [RECEIVER='$receiver'] [SUBJECT='$subject'] [MESSAGE='$message'].";
-		$this->logger->error($text);
-	}
-
-	private function logInfo($sender, $receiver, $subject, $message) {
-		$text = "Mail sent : [Sender='$sender'] [RECEIVER='$receiver'] [SUBJECT='$subject'] [MESSAGE='$message'].";
-		$this->logger->info($text);
+		$this->logger->info($sender, $receiver, $subject, $message);
 	}
 
 	public function generateBoundary() {
@@ -48,8 +38,6 @@ class Mailer implements MailerInterface
 		$headers .= "Content-Type: multipart/alternative; boundary=$boundary\n";
 		return $headers;
 	}
-
-
 }
 
 ?>

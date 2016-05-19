@@ -15,21 +15,21 @@ class Router implements RouterInterface
 	private $routes = array();
 
 	/**
-	 * Resolve the route from the request uri
+	 * Resolve the route from the request path
 	 * @param $request Moulino\Framework\Http\Request request http
 	 * @return Moulino\Framework\Http\Response
 	 */
 	public function resolve(Request $request) {
 		$method = $request->getMethod();
-		$uri = $request->getUri();
+		$path = $request->getPath();
 
 		foreach ($this->routes[$method] as $route) {
-			if($route->match($uri)) {
+			if($route->match($path)) {
 				return $route;
 			}
 		}
 
-		throw new NoRouteFoundException("No routes matches the uri '$uri'.");
+		throw new NoRouteFoundException("No routes matches the request path '$path'.");
 	}
 
 

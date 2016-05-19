@@ -13,7 +13,12 @@ return array(
 
 	'logger' => array(
 		'class' => 'Moulino\\Framework\\Log\\Logger',
-		'arguments' => array('%app.mode%', '%app.date_format%')
+		'arguments' => array('@mailer', '%logger%', '%app.mode%', '%app.date_format%')
+	),
+
+	'mail_logger' => array(
+		'class' => 'Moulino\\Framework\\Log\\MailLogger',
+		'arguments' => array('%app.date_format%')
 	),
 
 	'validator' => array(
@@ -81,7 +86,7 @@ return array(
 
 	'mailer' => array(
 		'class' => 'Moulino\\Framework\\Mail\\Mailer',
-		'arguments' => array('@logger')
+		'arguments' => array('@mail_logger')
 	),
 );
 
