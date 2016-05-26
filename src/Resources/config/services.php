@@ -87,7 +87,7 @@ return array(
 	'mailer' => array(
 		'class' => 'Moulino\\Framework\\Mail\\Mailer',
 		'arguments' => array('@mail_logger')
-	),
+	)
 );
 
 ?>

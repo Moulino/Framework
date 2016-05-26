@@ -4,6 +4,7 @@ namespace Moulino\Framework\Service;
 
 use Moulino\Framework\Service\Exception\NoDefinitionFoundException;
 use Moulino\Framework\Service\Exception\ClassNoInstantiableException;
+use Moulino\Framework\Sercice\Exception\AliasNotAuthorizedException;
 
 /**
 * Container de dépendances
@@ -30,6 +31,8 @@ class Container
 
 	public function setDefinition($alias, $definition) {
 		$alias = strtolower($alias);
+
+		$this->checkAlias($alias);
 		$this->definitions[$alias] = $definition;
 	}
 
@@ -42,6 +45,10 @@ class Container
 	}
 
 	public function get($alias) {
+		if($alias === "container") {
+			return $this;
+		}
+
 		if(isset($this->instances[$alias])) {
 			return $this->instances[$alias];
 		}
@@ -104,4 +111,9 @@ class Container
 		return false;
 	}
 	
+	private function checkAlias($alias) {
+		if($alias === 'container') {
+			throw new AliasNotAuthorizedException("The alias 'container' is reserved.");
+		}
+	}
 } ?>

@@ -1,6 +1,6 @@
 <?php 
 
-namespace Moulino\Framework\Auth\Exception;
+namespace Moulino\Framework\Service\Exception;
 
 use Moulino\Framework\Core\Exception\InternalErrorException;
 
