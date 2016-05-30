@@ -7,7 +7,7 @@ use Moulino\Framework\Model\ModelInterface;
 class StringValidator extends AbstractConstraintValidator
 {
 	public function validate($field, $value, ModelInterface $model) {
-		if(!preg_match('#^[\w\p{L}\p{N}\p{Pd}\s]+$#u', $value)) {
+		if(!preg_match('#^[\w\p{L}\p{N}\p{Pd}\s]+$#u', $value) && !empty($value)) {
 			return new ConstraintViolation($field, $this->translator->tr("This field must be a string"));
 		}
 	}
