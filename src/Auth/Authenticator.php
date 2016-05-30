@@ -7,6 +7,7 @@ use Moulino\Framework\Model\ModelInterface;
 use Moulino\Framework\Config\ConfigInterface;
 
 use Moulino\Framework\Auth\Exception\BadCredentialsException;
+use Moulino\Framework\Auth\Exception\SaltIsEmpty;
 
 use Moulino\Framework\Translation\TranslatorInterface;
 
@@ -18,7 +19,7 @@ class Authenticator implements AuthenticatorInterface
 	private $session;
 	private $model;
 	private $translator;
-	private $salt;
+	private $pwdEncoder;
 
 	const LOCKED_USER_MESSAGE  = "Account locked";
 	const UNKNOWN_USER_MESSAGE = "Unknown username";
@@ -28,11 +29,11 @@ class Authenticator implements AuthenticatorInterface
 	/**
 	 * Constructor
 	 */
-	public function __construct(SessionInterface $session, ModelInterface $model, TranslatorInterface $translator, $salt) {
+	public function __construct(SessionInterface $session, ModelInterface $model, TranslatorInterface $translator, PasswordEncoderInterface $pwdEncoder) {
 		$this->session 		= $session;
 		$this->model   		= $model;
 		$this->translator 	= $translator;
-		$this->salt  		= $salt;
+		$this->pwdEncoder  	= $pwdEncoder;
 	}
 
 	/**
@@ -113,7 +114,7 @@ class Authenticator implements AuthenticatorInterface
 	 * @return string encrypted password
 	 */
 	public function encodePassword($password) {
-		return sha1(sha1($password).$this->salt);
+		return $this->pwdEncoder->encode($password);
 	}
 
 	public function checkPassword($password) {

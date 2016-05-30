@@ -47,6 +47,6 @@ class Application extends BaseApplication
             ));
         }
 
-        $this->add(new AuthCommand\HashPassword($this->container->get('password_hasher')));;
+        $this->add(new AuthCommand\HashPassword($this->container->get('password_encoder')));;
 	}
 }

@@ -74,14 +74,14 @@ return array(
 		'arguments' => array('@firewall', '%security.firewall_rules%')
 	),
 
-	'authenticator' => array(
-		'class' => 'Moulino\\Framework\\Auth\\Authenticator',
-		'arguments' => array('@session', '@%security.entity%_model', '@translator', '%security.salt%')
+	'password_encoder' => array(
+		'class' => 'Moulino\\Framework\\Auth\\PasswordEncoder',
+		'arguments' => array('%security.salt%')
 	),
 
-	'password_hasher' => array(
-		'class' => 'Moulino\\Framework\\Auth\\PasswordHasher',
-		'arguments' => array('%security.salt%')
+	'authenticator' => array(
+		'class' => 'Moulino\\Framework\\Auth\\Authenticator',
+		'arguments' => array('@session', '@%security.entity%_model', '@translator', '@password_encoder')
 	),
 
 	'error_handler' => array(

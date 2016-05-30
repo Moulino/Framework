@@ -7,14 +7,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use Moulino\Framework\Auth\PasswordEncoderInterface;
 use Moulino\Framework\Auth\Exception\SaltIsEmpty;
 
 class HashPassword extends Command
 {
-	private $passwordHasher;
+	private $pwdEncoder;
 
-	public function __construct($passwordHasher) {
-		$this->passwordHasher = $passwordHasher;
+	public function __construct(PasswordEncoderInterface $pwdEncoder) {
+		$this->pwdEncoder = $pwdEncoder;
 		parent::__construct();
 	}
 
@@ -27,7 +28,7 @@ class HashPassword extends Command
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$clearPwd = $input->getArgument('password');
 		try {
-			$pwd = $this->passwordHasher->hash($clearPwd);
+			$pwd = $this->pwdEncoder->encode($clearPwd);
 		} catch (SaltIsEmtpy $e) {
 			$message = $e->getMessage();
 			$output->write("<error>$e</error>", true);
