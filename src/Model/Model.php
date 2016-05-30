@@ -47,9 +47,10 @@ class Model implements ModelInterface
 		$sql .= ");";
 
 		$query = $this->connection->prepare($sql);
-		if(!$query->execute($parameters)) {
-			$error = $this->connection->errorInfo();
-			throw new \Exception("Erreur lors de l'ajout de l'element. SQL : $sql", $error[1]);
+		try {
+			$query->execute($parameters);
+		} catch(\PDOException $e) {
+			throw new \Exception("Erreur lors de l'ajout de l'element : ".$e->getMessage());
 		}
 	}
 
@@ -139,7 +140,8 @@ class Model implements ModelInterface
 		$sql .= ";";
 
 		$query = $this->connection->prepare($sql);
-		return $query->execute($queryParameters);
+		$query->execute($queryParameters);
+		return $query->rowCount();
 	}
 
 	public function cget($criteria = null, $filters = null) {
@@ -200,11 +202,13 @@ class Model implements ModelInterface
 		$sql .= ';';
 
 		$query = $this->connection->prepare($sql);
-		return $query->execute($queryParameters);
+		$query->execute($queryParameters);
+		return $query->rowCount();
 	}
 
 	public function removeAll() {
-		$this->connection->exec("DELETE FROM $this->tableName");
+		return $this->connection->exec("DELETE FROM $this->tableName");
+
 	}
 
 	public function count($criteria = array()) {
@@ -231,19 +235,12 @@ class Model implements ModelInterface
 				);
 		}
 
-		try {
-			$query = $this->connection->prepare($sql);
-		} catch(\PDOException $e) {
-
+		$query = $this->connection->prepare($sql);
+		$query->execute($queryParameters);
+		if(($result = $query->fetch()) != false) {
+			return intval($result[0]);
 		}
-
-		if($query->execute($queryParameters)) {
-			if(($result = $query->fetch()) != false) {
-				return intval($result[0]);
-			}
-		} else {
-			
-		}
+		return false;
 	}
 	
 	public function errorInfo() {

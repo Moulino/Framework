@@ -24,6 +24,7 @@ class Database implements DatabaseInterface
 
 		try {
 			$this->connection = new \PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8", $db_user, $db_pwd);
+			$this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		} catch(\PDOException $e) {
 			throw new DatabaseException(self::ERROR_CONNECTION_MESSAGE, 0, $e);
 		}
