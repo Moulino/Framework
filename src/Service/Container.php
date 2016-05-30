@@ -4,7 +4,7 @@ namespace Moulino\Framework\Service;
 
 use Moulino\Framework\Service\Exception\NoDefinitionFoundException;
 use Moulino\Framework\Service\Exception\ClassNoInstantiableException;
-use Moulino\Framework\Sercice\Exception\AliasNotAuthorizedException;
+use Moulino\Framework\Service\Exception\AliasNotAuthorizedException;
 
 /**
 * Container de dépendances

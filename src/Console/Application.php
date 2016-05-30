@@ -5,11 +5,16 @@ namespace Moulino\Framework\Console;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Moulino\Framework\Console\Command as MoulinoCommand;
+use Moulino\Framework\Auth\Command as AuthCommand;
+use Moulino\Framework\Service\Container;
 
 class Application extends BaseApplication
 {
-	function __construct($version = '0.1.0') {
+    private $container;
+
+	function __construct(Container $container, $version = '0.1.0') {
+        $this->container = $container;
+
         $title = 
 "                    _ _               ___                                            _    \n".
 "  /\/\   ___  _   _| (_)_ __   ___   / __\ __ __ _ _ __ ___   _____      _____  _ __| | __\n".
@@ -42,6 +47,6 @@ class Application extends BaseApplication
             ));
         }
 
-        $this->add(new MoulinoCommand\HashPassword());
+        $this->add(new AuthCommand\HashPassword($this->container->get('password_hasher')));;
 	}
 }

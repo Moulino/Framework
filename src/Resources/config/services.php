@@ -79,6 +79,11 @@ return array(
 		'arguments' => array('@session', '@%security.entity%_model', '@translator', '%security.salt%')
 	),
 
+	'password_hasher' => array(
+		'class' => 'Moulino\\Framework\\Auth\\PasswordHasher',
+		'arguments' => array('%security.salt%')
+	),
+
 	'error_handler' => array(
 		'class' => 'Moulino\\Framework\\Core\\ErrorHandler',
 		'arguments' => array('@logger', '@view', '%app.mode%')
