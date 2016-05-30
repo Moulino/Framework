@@ -47,6 +47,11 @@ class Application extends BaseApplication
             ));
         }
 
+        // load framework commands
         $this->add(new AuthCommand\HashPassword($this->container->get('password_encoder')));;
+
+        // load app commands
+        $this->addCommands($this->container->get('command_loader')->load());
+
 	}
 }
