@@ -3,7 +3,7 @@
 return array(
 	'kernel' => array(
 		'class' => 'Moulino\\Framework\\Core\\Kernel',
-		'arguments' => array('@router', '@firewall', '@translator', '@error_handler', '%app.charset%')
+		'arguments' => array('@router', '@firewall', '@translator', '@error_handler', '%app.mode%', '%app.charset%')
 	),
 
 	'database' => array(

@@ -25,6 +25,7 @@ class Kernel
 	private $accessControl;
 	private $translator;
 	private $errorHandler;
+	private $mode;
 	private $charset;
 
 	public function __construct(
@@ -32,13 +33,15 @@ class Kernel
 		AccessControlInterface $accessControl, 
 		TranslatorInterface $translator,
 		ErrorHandlerInterface $errorHandler,
+		$mode,
 		$charset) {
 
 		$this->router        = $router;
 		$this->accessControl = $accessControl;
 		$this->translator    = $translator;
 		$this->errorHandler  = $errorHandler;
-		$this->charset 		 = $charset;
+		$this->mode          = $mode;
+		$this->charset       = $charset;
 	}
 
 	public function run() {
@@ -66,6 +69,10 @@ class Kernel
 			$response = $route->call($request);
 
 		}	catch (\Exception $e) {
+			if($this->mode === 'dev') {
+				throw $e;
+			}
+			
 			$response = $this->errorHandler->handleException($e, $request->getFormat());
 		}
 		return $response;
