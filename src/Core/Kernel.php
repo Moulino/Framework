@@ -2,7 +2,7 @@
 
 namespace Moulino\Framework\Core;
 
-use Moulino\Framework\Http\Request;
+use Moulino\Framework\Http\RequestInterface;
 use Moulino\Framework\Http\Response;
 use Moulino\Framework\Http\HttpException;
 
@@ -17,46 +17,39 @@ use Moulino\Framework\Firewall\AccessForbiddenException;
 use Moulino\Framework\Translation\TranslatorInterface;
 use Moulino\Framework\Translation\LoaderInterface as TranslationLoaderInterface;
 
+use Moulino\Framework\Service\Container;
+
 use Moulino\Framework\Core\Exception\ForbiddenException;
 
 class Kernel 
 {
-	private $router;
-	private $accessControl;
-	private $translator;
-	private $errorHandler;
+	private $container;
 	private $mode;
 	private $charset;
 
-	public function __construct(
-		RouterInterface $router, 
-		AccessControlInterface $accessControl, 
-		TranslatorInterface $translator,
-		ErrorHandlerInterface $errorHandler,
-		$mode,
-		$charset) {
-
-		$this->router        = $router;
-		$this->accessControl = $accessControl;
-		$this->translator    = $translator;
-		$this->errorHandler  = $errorHandler;
+	public function __construct(Container $container, $mode, $charset) {
+		$this->container = $container;
 		$this->mode          = $mode;
 		$this->charset       = $charset;
+
+		//$container->get('error_handler')->register();
+
 	}
 
 	public function run() {
-		$request = new Request();
+		$request = $this->container->get('request');
 		$request->load();
 
 		$response = $this->handle($request);
 		$response->send($request);
 	}
 
-	private function handle(Request $request) {
+	private function handle(RequestInterface $request) {
 		$response = null;
 		
 		try {
-			$route = $this->router->resolve($request);
+			$router = $this->container->get('router');
+			$route = $router->resolve($request);
 
 			// Checks if the request is in ajax
 			if($route->isAjax() && !$request->isAjax()) {
@@ -64,16 +57,12 @@ class Kernel
 			}
 			
 			// Checks whether the user is authorized to access the ressource
-			$this->accessControl->checkAuthorization($request);
+			$this->container->get('firewall')->checkAuthorization($request);
 
 			$response = $route->call($request);
 
 		}	catch (\Exception $e) {
-			if($this->mode === 'dev') {
-				throw $e;
-			}
-			
-			$response = $this->errorHandler->handleException($e, $request->getFormat());
+			$response = $this->container->get('exception_handler')->handle($e, $request->getFormat());
 		}
 		return $response;
 	}

@@ -15,24 +15,24 @@ class Container implements TranslationContainerInterface
 		$this->logger = $logger;
 	}
 
-	public function translate($string) {
-		if(!$this->isDefined($string)) {
-			$this->logger->warning("Translation unfound : ".$string);
+	public function translate($string, $locale) {
+		if(!$this->isDefined($string, $locale)) {
+			//$this->logger->warning("Translation unfound : ".$string);
 			return $string;
 		}
-		return $this->get($string);
+		return $this->get($string, $locale);
 	}
 
-	public function isDefined($key) {
-		return isset($this->container[$key]);
+	public function isDefined($key, $locale) {
+		return isset($this->container[$locale][$key]);
 	}
 
-	public function set($key, $value) {
-		$this->container[$key] = $value;
+	public function set($key, $value, $locale) {
+		$this->container[$locale][$key] = $value;
 	}
 
-	public function get($key) {
-		return $this->container[$key];
+	public function get($key, $locale) {
+		return $this->container[$locale][$key];
 	}
 }
 

@@ -3,86 +3,27 @@
 namespace Moulino\Framework\Core;
 
 use Moulino\Framework\Log\LoggerInterface;
-use Moulino\Framework\Http\Response;
-
-use Moulino\Framework\View\EngineInterface as ViewEngineInterface;
-
-use Moulino\Framework\Core\Exception\BadRequestException;
-use Moulino\Framework\Core\Exception\ForbiddenException;
 use Moulino\Framework\Core\Exception\InternalErrorException;
-use Moulino\Framework\Core\Exception\NotFoundException;
-use Moulino\Framework\Core\Exception\TemplateNotFoundException;
 
-class ErrorHandler implements ErrorHandlerInterface
+class ErrorHandler
 {
 	private $logger;
-	private $view;
-	private $mode;
 
-	public function __construct(
-		LoggerInterface $logger, 
-		ViewEngineInterface $view, 
-		$mode) {
-		
+	public function __construct(LoggerInterface $logger) {
 		$this->logger = $logger;
-		$this->view = $view;
-		$this->mode = $mode;
 	}
 
-	public function handleException(\Exception $e, $format) {
-		$statusCode = 500;
-
-		if($e instanceof BadRequestException) {
-			$statusCode = 400;
-		}
-
-		if($e instanceof ForbiddenException) {
-			$statusCode = 403;
-		}
-
-		if($e instanceof NotFoundException) {
-			$statusCode = 404;
-		}
-
-		try {
-			$filepath = $this->getViewFilepath($statusCode, $format);
-		} catch (TemplateNotFoundException $e) {
-			return $this->handleException($e, $format);
-		}
-
-		$this->logger->error($e->__toString());
-
-		$vars = array(
-			'message' => $e->getMessage(),
-			'mode' => $this->mode
-		);
-
-		if($this->mode === 'dev') {
-			$vars['file'] = $e->getFile();
-			$vars['line'] = $e->getLine();
-			$vars['code'] = $e->getCode();
-			$vars['trace'] = $e->getTrace();
-		}
-
-		$content = $this->view->render($filepath, $vars);
-
-		return new Response($content, $statusCode);
+	public function register() {
+		set_error_handler(array($this, 'handler'));
 	}
 
-	private function getViewFilepath($statusCode, $format) {
-		$templateRelPath = DS.'Resources'.DS.'views'.DS.$statusCode.'.'.$format.'.php';
+	public function handler($type, $message, $file, $line, $context) {
 
-		$userTemplate = APP.$templateRelPath;
-		if(file_exists($userTemplate)) {
-			return $userTemplate;
+		if($type === E_WARNING) {
+			$this->logger->warning("$message $file:$line");
+		} else {
+			throw new InternalErrorException("$message $file:$line", $type);
 		}
-
-		$frameworkTemplate = FRAMEWORK.$templateRelPath;
-		if(file_exists($frameworkTemplate)) {
-			return $frameworkTemplate;
-		}
-
-		throw new TemplateNotFoundException("The template for the status code '$statusCode' and the format '$format' was not found.");
 	}
 }
 

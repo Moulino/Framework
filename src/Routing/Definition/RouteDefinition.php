@@ -7,7 +7,7 @@ return array(
 	),
 	'method' => array(
 		'require' => true,
-		'match' => 'GET|POST|DELETE'
+		'match' => 'GET|POST|PUT|DELETE'
 	),
 	'callable' => array(
 		'require' => true,

@@ -34,7 +34,11 @@ class Router implements RouterInterface
 
 
 	public function addRoute($method, $path, $controller, $action, $requirements = array(), $ajax = false) {
-		$this->routes[$method][] = new Route($path, $controller, $action, $requirements, $ajax);
+		$methods = explode('|', $method);
+
+		foreach ($methods as $method) {
+			$this->routes[$method][] = new Route($path, $controller, $action, $requirements, $ajax);
+		}		
 	}
 }
 

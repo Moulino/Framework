@@ -3,7 +3,11 @@
 return array(
 	'kernel' => array(
 		'class' => 'Moulino\\Framework\\Core\\Kernel',
-		'arguments' => array('@router', '@firewall', '@translator', '@error_handler', '%app.mode%', '%app.charset%')
+		'arguments' => array('@container', '%app.mode%', '%app.charset%')
+	),
+
+	'request' => array(
+		'class' => 'Moulino\\Framework\\Http\\Request'
 	),
 
 	'database' => array(
@@ -32,7 +36,7 @@ return array(
 
 	'translator' => array(
 		'class' => 'Moulino\\Framework\\Translation\\Translator',
-		'arguments' => array('@translation_container')
+		'arguments' => array('@translation_container', '@request', '%app.locale%')
 	),
 
 	'translation_container' => array(
@@ -42,7 +46,7 @@ return array(
 
 	'translation_loader' => array(
 		'class' => 'Moulino\\Framework\\Translation\\Loader',
-		'arguments' => array('@translation_container', '%app.language%')
+		'arguments' => array('@translation_container')
 	),
 
 	'router' => array(
@@ -61,7 +65,7 @@ return array(
 
 	'view' => array(
 		'class' => 'Moulino\\Framework\\View\\Engine',
-		'arguments' => array('@authenticator', '%app.mode%')
+		'arguments' => array('@container', '%app.mode%')
 	),
 
 	'firewall' => array(
@@ -80,13 +84,18 @@ return array(
 	),
 
 	'authenticator' => array(
-		'class' => 'Moulino\\Framework\\Auth\\Authenticator',
-		'arguments' => array('@session', '@%security.entity%_model', '@translator', '@password_encoder')
+		'class' => array('Moulino\\Framework\\Auth\\AuthenticatorLoader','getClass'),
+		'arguments' => array('@container', '@%security.entity%_model')
+	),
+
+	'exception_handler' => array(
+		'class' => 'Moulino\\Framework\\Core\\ExceptionHandler',
+		'arguments' => array('@logger', '@view', '%app.mode%')
 	),
 
 	'error_handler' => array(
 		'class' => 'Moulino\\Framework\\Core\\ErrorHandler',
-		'arguments' => array('@logger', '@view', '%app.mode%')
+		'arguments' => array('@logger')
 	),
 
 	'mailer' => array(

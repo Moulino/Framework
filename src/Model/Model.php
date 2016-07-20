@@ -4,6 +4,7 @@ namespace Moulino\Framework\Model;
 
 use Moulino\Framework\Database\DatabaseInterface;
 use Moulino\Framework\Config\ConfigInterface;
+use Moulino\Framework\Config\Config as AppConfig;
 
 class Model implements ModelInterface
 {
@@ -22,6 +23,16 @@ class Model implements ModelInterface
 		return $this->entityName;
 	}
 
+	public function getFieldParameters() {
+		$fields = array();
+		$path = "entities.".ucfirst($this->tableName).".fields";
+
+		if(AppConfig::isDefined($path)) {
+			$fields = AppConfig::get($path);
+		}
+		return $fields;
+	}
+
 	public function add($parameters) {
 		$sql = "INSERT INTO $this->tableName(";
 
@@ -30,7 +41,7 @@ class Model implements ModelInterface
 			if($number > 0) {
 				$sql .= ',';
 			}
-			$sql .= $key;
+			$sql .= '`'.$key.'`';
 			$number++;
 		}
 		$sql .= ") VALUES(";
@@ -48,6 +59,7 @@ class Model implements ModelInterface
 
 		$query = $this->connection->prepare($sql);
 		try {
+			$parameters = $this->prepareQueryParameters($parameters);
 			$query->execute($parameters);
 		} catch(\PDOException $e) {
 			throw new \Exception("Erreur lors de l'ajout de l'element : ".$e->getMessage());
@@ -94,8 +106,11 @@ class Model implements ModelInterface
 		$sql .= ';';
 
 		$query = $this->connection->prepare($sql);
+
+		$queryParameters = $this->prepareQueryParameters($queryParameters);
 		$query->execute($queryParameters);
-		return $query->fetch(\PDO::FETCH_ASSOC);
+		$entity = $this->convertEntity($query->fetch(\PDO::FETCH_ASSOC));
+		return $entity;
 	}
 
 	public function set($criteria, $parameters) {
@@ -117,7 +132,7 @@ class Model implements ModelInterface
 				$sql .= ',';
 			}
 
-			$sql .= "$key = :$key";
+			$sql .= "`$key` = :$key";
 			$number++;
 		}
 
@@ -140,6 +155,8 @@ class Model implements ModelInterface
 		$sql .= ";";
 
 		$query = $this->connection->prepare($sql);
+
+		$queryParameters = $this->prepareQueryParameters($queryParameters);
 		$query->execute($queryParameters);
 		return $query->rowCount();
 	}
@@ -153,7 +170,6 @@ class Model implements ModelInterface
 		}
 
 		if(is_array($criteria)) {
-			$sql .= " WHERE";
 			$number = 0;
 
 			foreach ($criteria as $key => $value) {
@@ -176,8 +192,11 @@ class Model implements ModelInterface
 		$sql .= ";";
 
 		$query = $this->connection->prepare($sql);
-		$query->execute($queryParameters);;
-		return $query->fetchAll(\PDO::FETCH_ASSOC);
+
+		$queryParameters = $this->prepareQueryParameters($queryParameters);
+		$query->execute($queryParameters);
+		$entities = $this->convertEntities($query->fetchAll(\PDO::FETCH_ASSOC));
+		return $entities;
 	}
 
 	public function remove($criteria) {
@@ -202,6 +221,8 @@ class Model implements ModelInterface
 		$sql .= ';';
 
 		$query = $this->connection->prepare($sql);
+
+		$queryParameters = $this->prepareQueryParameters($queryParameters);
 		$query->execute($queryParameters);
 		return $query->rowCount();
 	}
@@ -215,7 +236,7 @@ class Model implements ModelInterface
 		$sql = "SELECT COUNT(*) FROM $this->tableName WHERE";
 		$queryParameters = null;
 
-		if(is_array($criteria)) {
+		if(count($criteria) > 0) {
 			$number = 0;
 			foreach ($criteria as $key => $value) {
 				if($number > 0) {
@@ -229,13 +250,12 @@ class Model implements ModelInterface
 
 			$queryParameters = $criteria;
 		} else {
-			$sql .= " id = :id";
-			$queryParameters = array(
-				'id' => intval($criteria)
-				);
+			$sql .= " 1;";
 		}
 
 		$query = $this->connection->prepare($sql);
+
+		$queryParameters = $this->prepareQueryParameters($queryParameters);
 		$query->execute($queryParameters);
 		if(($result = $query->fetch()) != false) {
 			return intval($result[0]);
@@ -245,6 +265,83 @@ class Model implements ModelInterface
 	
 	public function errorInfo() {
 		return $this->connection->errorInfo();
+	}
+
+	public function prepareQueryParameters($queryParameters) {
+		if(false == is_null($queryParameters)) {
+			$fields = $this->getFieldParameters();
+
+			foreach($queryParameters as $key => $value) {
+				$newval = $value;
+				if(array_key_exists($key, $fields)) {
+					$type = $fields[$key];
+
+					switch($type) {
+						case 'integer':
+							$newval = strval($value);
+							break;
+						case 'number':
+							$newval = strval($value);
+							break;
+						case 'boolean':
+							$newval = (true === $value) ? '1' : '0';
+							break;
+						default:
+							$newval = $value;
+							break;
+					}
+					$queryParameters[$key] = $newval;//$this->convertToType($type, $value);
+				}
+			}
+		}
+
+		return $queryParameters;
+	}
+
+	public function convertEntities($entities) {
+		if(is_array($entities)) {
+			foreach ($entities as $key => $value) {
+				$entities[$key] = $this->convertEntity($value);
+			}
+		}
+
+		return $entities;
+	}
+
+	public function convertEntity($entity) {
+		$fields = $this->getFieldParameters();
+
+		if(false != $entity) {
+			foreach ($entity as $key => $value) {
+				if(array_key_exists($key, $fields)) {
+					$type = $fields[$key];
+					$newval = null;
+
+					if(!is_null($value)) {
+						switch ($type) {
+							case 'integer':
+								$newval = intval($value);
+								break;
+
+							case 'number':
+								$newval = floatval($value);
+								break;
+
+							case 'boolean':
+								$newval = boolval($value);
+								break;
+							
+							default:
+								$newval = $value;
+								break;
+						}
+					}
+					$entity[$key] = $newval;
+				}
+			}
+		}
+
+		return $entity;
 	}
 }
 

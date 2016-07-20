@@ -18,7 +18,7 @@ class Loader implements LoaderInterface
 	private $routeDefinition;
 	private $routeValidator;
 
-	private $methods = array('GET', 'POST', 'DELETE');
+	private $methods = array('GET', 'POST', 'PUT', 'DELETE');
 
 	
 	function __construct(RouterInterface $router, RouteValidator $routeValidator, array $routes) {
@@ -64,8 +64,11 @@ class Loader implements LoaderInterface
 	}
 
 	private function checkMethod($method) {
-		if(!in_array($method, $this->methods)) {
-			throw new RoutingException("The method '$method' is not configured");
+		$methods = explode('|', $method);
+		foreach ($methods as $m) {
+			if(!in_array($m, $this->methods)) {
+				throw new RoutingException("The method '$m' is not configured");
+			}
 		}
 	}
 

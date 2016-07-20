@@ -35,10 +35,22 @@ class Route
 
 		if(preg_match($regex, $requestPath, $matches)) {
 			array_shift($matches);
-			$this->arguments = $matches;
+			$argKeys = $this->argumentKeys();
+
+			$this->arguments = array_combine($argKeys, $matches);
 			return true;
 		}
 		return false;
+	}
+
+	private function argumentKeys() {
+		$regex = "/:([\w]+)/";
+		$keys = array();
+
+		if(preg_match_all($regex, $this->path, $matches)) {
+			$keys = $matches[1];
+		}
+		return $keys;
 	}
 
 	/**
@@ -59,8 +71,14 @@ class Route
 	 * @return returns the function result
 	 */
 	public function call(Request $request) {
-		$arguments = $this->arguments;
+		if(array_key_exists('locale', $this->arguments)) {
+			$request->setLocale($this->arguments['locale']);
+			unset($this->arguments['locale']);
+		}
+
+		$arguments = array_values($this->arguments);
 		array_unshift($arguments, $request);
+
 		return call_user_func_array(array(new $this->controller(), $this->action), $arguments);
 	}
 

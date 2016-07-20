@@ -5,6 +5,7 @@ namespace Moulino\Framework\Auth;
 use Moulino\Framework\Session\SessionInterface;
 use Moulino\Framework\Model\ModelInterface;
 use Moulino\Framework\Config\ConfigInterface;
+use Moulino\Framework\Service\Container;
 
 use Moulino\Framework\Auth\Exception\BadCredentialsException;
 use Moulino\Framework\Auth\Exception\SaltIsEmpty;
@@ -14,26 +15,16 @@ use Moulino\Framework\Translation\TranslatorInterface;
 /**
  * This class handles the authentication steps.
  */
-class Authenticator implements AuthenticatorInterface
+class SessionAuthenticator extends AbstractAuthenticator
 {
 	private $session;
-	private $model;
-	private $translator;
-	private $pwdEncoder;
-
-	const LOCKED_USER_MESSAGE  = "Account locked";
-	const UNKNOWN_USER_MESSAGE = "Unknown username";
-	const WRONG_PASSWORD       = "Wrong password";
-	const USER_NOT_LOGGED      = "User is not logged";
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(SessionInterface $session, ModelInterface $model, TranslatorInterface $translator, PasswordEncoderInterface $pwdEncoder) {
-		$this->session 		= $session;
-		$this->model   		= $model;
-		$this->translator 	= $translator;
-		$this->pwdEncoder  	= $pwdEncoder;
+	public function __construct(Container $container, ModelInterface $model) {
+		parent::__construct($container, $model);
+		$this->session = $container->get('session');
 	}
 
 	/**
@@ -59,16 +50,7 @@ class Authenticator implements AuthenticatorInterface
 	 * @throws AuthException If the authentication has failed
 	 */
 	public function login($remoteAddr, $user_id, $password) {		
-		$user = $this->model->get(array('user_id' => $user_id));
-
-		if(!$user) {
-			throw new BadCredentialsException($this->translator->tr(self::UNKNOWN_USER_MESSAGE), 403);
-		}
-
-		if($user['errors'] >= 10) {
-			throw new BadCredentialsException($this->translator->tr(self::LOCKED_USER_MESSAGE), 403);
-		}
-
+		$user = $this->fetchUser($user_id);
 		$passEnc = $this->encodePassword($password);
 
 		if($user['password'] == $passEnc) {
@@ -106,15 +88,6 @@ class Authenticator implements AuthenticatorInterface
 			'name' 			=> isset($auth['name']) ? $auth['name'] : '',
 			'roles'         => isset($auth['roles']) ? $auth['roles'] : array()
 		);
-	}
-
-	/**
-	 * Return the password encoded
-	 * @param string ununcrypted password
-	 * @return string encrypted password
-	 */
-	public function encodePassword($password) {
-		return $this->pwdEncoder->encode($password);
 	}
 
 	public function checkPassword($password) {

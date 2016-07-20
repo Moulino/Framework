@@ -2,6 +2,6 @@
 
 namespace Moulino\Framework\Core;
 
-interface ErrorHandlerInterface {}
+interface ExceptionHandlerInterface {}
 
 ?>

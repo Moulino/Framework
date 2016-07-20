@@ -2,21 +2,24 @@
 
 namespace Moulino\Framework\Http;
 
-class Request
+class Request implements RequestInterface
 {
 
 	private $uri; //url appelée par l'utilisateur
 	private $path;
+	private $baseUrl;
 	private $method;
-	private $get = array('test');
+	private $get = array();
 	private $post = array();
 	private $format = '';
 	private $formats = array(
 		'html' => array('text/html'),
 		'json' => array('application/json')
 	);
+	private $locale;
 
 	public function load() {
+		$this->baseUrl = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'];
 		$this->uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->get = $_GET;
@@ -84,6 +87,10 @@ class Request
 		$this->uri = $uri;
 	}
 
+	public function getBaseUrl() {
+		return $this->baseUrl;
+	}
+
 	public function getMethod() {
 		return $this->method;
 	}
@@ -98,6 +105,22 @@ class Request
 
 	public function isAjax() {
 		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') ? true : false;
+	}
+
+	public function getContent() {
+		return file_get_contents('php://input');
+	}
+
+	public function getHeaders() {
+		return getallheaders();
+	}
+
+	public function setLocale($locale) {
+		$this->locale = $locale;
+	}
+
+	public function getLocale() {
+		return $this->locale;
 	}
 }
 

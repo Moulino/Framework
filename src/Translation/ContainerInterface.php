@@ -4,7 +4,7 @@ namespace Moulino\Framework\Translation;
 
 interface ContainerInterface
 {
-	public function translate($string);
+	public function translate($string, $locale);
 }
 
 ?>

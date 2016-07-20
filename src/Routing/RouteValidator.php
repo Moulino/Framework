@@ -31,7 +31,7 @@ class RouteValidator
 			// test 'match'
 			if(isset($value['match'])) {
 				if(!preg_match('#'.$value['match'].'#', $route[$key])) {
-					throw new RoutingValidationException($this->tr("The format of parameter '%s' for the route '%s' is wrong.", $key, $id));
+					throw new RoutingValidationException($this->tr("The format of parameter '%s' for the route '%s' is wrong : [%s].", $key, $id, $route[$key]));
 				}
 			}
 		}
