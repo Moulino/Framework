@@ -25,7 +25,7 @@ class Request implements RequestInterface
 	
 	public function load() {
 		$this->baseUrl = 'http://'.$_SERVER['HTTP_HOST'];
-		$this->uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
+		$this->uri = $_SERVER['REQUEST_URI'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->get = $_GET;
 		$this->post = $_POST;
@@ -38,10 +38,10 @@ class Request implements RequestInterface
 	}
 
 	private function loadPath($uri) {
-		$regex = '#^([[:alnum:]_\-\/\.]*)\??.*$#';
+		$regex = '#^/(fr|en|en|nl)(.*)$#';
 
 		if(preg_match($regex, $uri, $matches)) {
-			return $matches[1];
+			return $matches[2];
 		}
 		return $uri;
 	}
