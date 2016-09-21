@@ -24,29 +24,7 @@ class Loader
 		$services = $config->get('');
 
 		foreach ($services as $alias => $service) {
-			$arguments = array();
-
-			if(isset($service['arguments'])) {
-				foreach ($service['arguments'] as $argument) {
-
-					if(preg_match('#^@#', $argument)) {
-						$argument = preg_replace_callback('#%([0-9\w\.]+)%#', function($matches) {
-							array_shift($matches);
-							$key = $matches[0];
-							return strtolower(AppConfig::get($key));
-						}, $argument);
-						array_push($arguments, new Reference(ltrim($argument, '@')));
-					} 
-
-					else if(preg_match('#%([0-9\w\.]+)%#', $argument, $matches)) {
-						array_shift($matches);
-						$key = $matches[0];
-						array_push($arguments, AppConfig::get($key));
-					}
-				}
-			}
-
-			$definition = new Definition($service['class'], $arguments);
+			$definition = Loader::getDefinitionObject($service);
 			$this->container->setDefinition($alias, $definition);
 		}
 
@@ -70,6 +48,32 @@ class Loader
 		}
 
 		return $this;
+	}
+
+	public static function getDefinitionObject($serviceDef) {
+		$arguments = array();
+
+		if(isset($serviceDef['arguments'])) {
+			foreach ($serviceDef['arguments'] as $argument) {
+
+				if(preg_match('#^@#', $argument)) {
+					$argument = preg_replace_callback('#%([0-9\w\.]+)%#', function($matches) {
+						array_shift($matches);
+						$key = $matches[0];
+						return strtolower(AppConfig::get($key));
+					}, $argument);
+					array_push($arguments, new Reference(ltrim($argument, '@')));
+				} 
+
+				else if(preg_match('#%([0-9\w\.]+)%#', $argument, $matches)) {
+					array_shift($matches);
+					$key = $matches[0];
+					array_push($arguments, AppConfig::get($key));
+				}
+			}
+		}
+
+		return new Definition($serviceDef['class'], $arguments);
 	}
 }
 

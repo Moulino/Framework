@@ -5,6 +5,7 @@ namespace Moulino\Framework\Service;
 use Moulino\Framework\Service\Exception\NoDefinitionFoundException;
 use Moulino\Framework\Service\Exception\ClassNoInstantiableException;
 use Moulino\Framework\Service\Exception\AliasNotAuthorizedException;
+use Moulino\Framework\Service\Definition;
 
 /**
 * Container de dépendances
@@ -54,6 +55,13 @@ class Container
 		}
 
 		$def = $this->getDefinition($alias);
+		$instance = $this->instantiate($def);
+
+		$this->instances[$alias] = $instance;
+		return $instance;
+	}
+
+	public function instantiate(Definition $def) {
 		$class = $def->getClass();
 
 		$reflector = new \ReflectionClass($class);
@@ -71,8 +79,6 @@ class Container
 			}
 			$arguments;
 			$instance = $reflector->newInstanceArgs($arguments);
-
-			$this->instances[$alias] = $instance;
 			return $instance;
 
 		} else {

@@ -7,7 +7,8 @@ return array(
 	),
 
 	'request' => array(
-		'class' => 'Moulino\\Framework\\Http\\Request'
+		'class' => 'Moulino\\Framework\\Http\\Request',
+		'arguments' => array('%app.locale%')
 	),
 
 	'database' => array(
@@ -65,7 +66,7 @@ return array(
 
 	'view' => array(
 		'class' => 'Moulino\\Framework\\View\\Engine',
-		'arguments' => array('@container', '%app.mode%')
+		'arguments' => array('@container', '%view%', '%app.mode%')
 	),
 
 	'firewall' => array(

@@ -17,15 +17,24 @@ class Request implements RequestInterface
 		'json' => array('application/json')
 	);
 	private $locale;
+	private $defaultLocale;
 
+	public function __construct($locale) {
+		$this->defaultLocale = $locale;
+	}
+	
 	public function load() {
-		$this->baseUrl = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'];
+		$this->baseUrl = 'http://'.$_SERVER['HTTP_HOST'];
 		$this->uri = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : $_SERVER['REQUEST_URI'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->get = $_GET;
 		$this->post = $_POST;
 
 		$this->path = $this->loadPath($this->uri);
+
+		$lang = $this->getParameter('lang');
+
+		$this->locale = ($lang) ? $lang : $this->defaultLocale;
 	}
 
 	private function loadPath($uri) {

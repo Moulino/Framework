@@ -9,19 +9,19 @@ class Translator implements TranslatorInterface
 {
 	private $container;
 	private $request;
-	private $appLocale;
+	private $defaultLocale;
 
-	public function __construct(ContainerInterface $container, Request $request, $appLocale) {
+	public function __construct(ContainerInterface $container, Request $request, $defaultLocale) {
 		$this->container = $container;
 		$this->request = $request;
-		$this->appLocale = $appLocale;
+		$this->defaultLocale = $defaultLocale;
 	}
 
 	public function tr($string) {
 		$locale = $this->request->getLocale();
 		$arguments = func_get_args();
 
-		if($locale != $this->appLocale) {
+		if($locale != $this->defaultLocale) {
 			array_shift($arguments);
 
 			$strTr = $this->container->translate($string, $locale);
