@@ -37,7 +37,7 @@ return array(
 
 	'translator' => array(
 		'class' => 'Moulino\\Framework\\Translation\\Translator',
-		'arguments' => array('@translation_container', '@request', '%app.locale%')
+		'arguments' => array('@translation_container', '@request')
 	),
 
 	'translation_container' => array(
