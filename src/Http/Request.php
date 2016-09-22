@@ -38,10 +38,10 @@ class Request implements RequestInterface
 	}
 
 	private function loadPath($uri) {
-		$regex = '#^/(fr|en|en|nl)(.*)$#';
+		$regex = '#^(\/(fr|en|en|nl))?([\w\d\/]+)(.*)?$#';
 
 		if(preg_match($regex, $uri, $matches)) {
-			return $matches[2];
+			return $matches[3];
 		}
 		return $uri;
 	}
