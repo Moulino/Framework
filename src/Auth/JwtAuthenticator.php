@@ -89,4 +89,14 @@ class JwtAuthenticator extends AbstractAuthenticator
 		}
 		return AppConfig::get('security.jwt_key');
 	}
+
+	/**
+	 * Check if the user has the role specified.
+	 * @param string Role name
+	 * @return boolean
+	 */
+	public function hasRole($role) {
+		$authInfo = $this->getAuthInfo();
+		return in_array($role, $authInfo['roles']);
+	}
 }
