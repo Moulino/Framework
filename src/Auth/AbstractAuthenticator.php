@@ -42,7 +42,7 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
 	 * @param string ununcrypted password
 	 * @return string encrypted password
 	 */
-	protected function encodePassword($password) {
+	public function encodePassword($password) {
 		return $this->passwordEncoder->encode($password);
 	}
 
