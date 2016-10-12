@@ -89,6 +89,11 @@ return array(
 		'arguments' => array('@container', '@%security.entity%_model')
 	),
 
+	'jwt_authenticator' => array(
+		'class' => 'Moulino\\Framework\\Auth\\JwtAuthenticator',
+		'arguments' => array('@container', '@%security.entity%_model')
+	),
+
 	'exception_handler' => array(
 		'class' => 'Moulino\\Framework\\Core\\ExceptionHandler',
 		'arguments' => array('@logger', '@view', '%app.mode%')
