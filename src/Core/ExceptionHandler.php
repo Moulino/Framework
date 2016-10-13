@@ -31,6 +31,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
 
 	public function handle(\Exception $e, $format) {
 		$statusCode = 500;
+		$sendMail = true;
 
 		if($e instanceof BadRequestException) {
 			$statusCode = 400;
@@ -42,6 +43,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
 
 		if($e instanceof NotFoundException) {
 			$statusCode = 404;
+			$sendMail = false;
 		}
 
 		try {
@@ -50,7 +52,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
 			return $this->handle($e, $format);
 		}
 
-		$this->logger->error($e->__toString());
+		$this->logger->error($e->__toString(), $sendMail);
 
 		$vars = array(
 			'message' => $e->getMessage(),

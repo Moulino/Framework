@@ -26,22 +26,28 @@ class Logger implements LoggerInterface
 		fclose($this->handle);
 	}
 
-	public function info($text) {
+	public function info($text, $sendMail = true) {
 		$text = sprintf("INFO [%s] : %s\n", date($this->dateFormat), $text);
 		fwrite($this->handle, $text);
-		$this->sendMail($text);
+		if(true === $sendMail) {
+			$this->sendMail($text);
+		}
 	}
 
-	public function warning($text) {
+	public function warning($text, $sendMail = true) {
 		$text = sprintf("WARNING [%s] : %s\n", date($this->dateFormat), $text);
 		fwrite($this->handle, $text);
-		$this->sendMail($text);
+		if(true === $sendMail) {
+			$this->sendMail($text);
+		}
 	}
 
-	public function error($text) {
+	public function error($text, $sendMail = true) {
 		$text = sprintf("ERROR [%s] : %s\n", date($this->dateFormat), $text);
 		fwrite($this->handle, $text);
-		$this->sendMail($text);
+		if(true === $sendMail) {
+			$this->sendMail($text);
+		}
 	}
 
 	private function sendMail($text) {
