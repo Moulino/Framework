@@ -7,7 +7,7 @@ use Moulino\Framework\Model\ModelInterface;
 
 interface AuthenticatorInterface
 {
-	public function __construct(Container $container, ModelInterface $model);
+	public function __construct(Container $container, ModelInterface $model, $salt);
 
 	public function isAuthenticated($remoteAddr);
 

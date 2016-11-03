@@ -16,8 +16,8 @@ class JwtAuthenticator extends AbstractAuthenticator
 
 	private $request = null;
 
-	public function __construct(Container $container, ModelInterface $model) {
-		parent::__construct($container, $model);
+	public function __construct(Container $container, ModelInterface $model, $salt) {
+		parent::__construct($container, $model, $salt);
 		$this->request = $container->get('request');
 	}
 

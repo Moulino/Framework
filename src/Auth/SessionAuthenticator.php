@@ -22,8 +22,8 @@ class SessionAuthenticator extends AbstractAuthenticator
 	/**
 	 * Constructor
 	 */
-	public function __construct(Container $container, ModelInterface $model) {
-		parent::__construct($container, $model);
+	public function __construct(Container $container, ModelInterface $model, $salt) {
+		parent::__construct($container, $model, $salt);
 		$this->session = $container->get('session');
 	}
 

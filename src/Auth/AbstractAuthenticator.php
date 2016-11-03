@@ -11,16 +11,18 @@ abstract class AbstractAuthenticator implements AuthenticatorInterface
 	protected $translator;
 	protected $model;
 	protected $passwordEncoder;
+	protected $salt;
 
 	const LOCKED_USER_MESSAGE  = "Account locked";
 	const UNKNOWN_USER_MESSAGE = "Unknown username";
 	const WRONG_PASSWORD       = "Wrong password";
 	const USER_NOT_LOGGED      = "User is not logged";
 
-	public function __construct(Container $container, ModelInterface $model) {
+	public function __construct(Container $container, ModelInterface $model, $salt) {
 		$this->translator = $container->get('translator');
 		$this->passwordEncoder = $container->get('password_encoder');
 		$this->model = $model;
+		$this->salt = $salt;
 	}
 
 	protected function fetchUser($user_id) {

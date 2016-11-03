@@ -86,7 +86,7 @@ return array(
 
 	'authenticator' => array(
 		'class' => array('Moulino\\Framework\\Auth\\AuthenticatorLoader','getClass'),
-		'arguments' => array('@container', '@%security.entity%_model')
+		'arguments' => array('@container', '@%security.entity%_model', '%security.salt%')
 	),
 
 	'jwt_authenticator' => array(
