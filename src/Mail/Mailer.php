@@ -18,9 +18,14 @@ class Mailer implements MailerInterface
 
 	public function send($sender, $receiver, $subject, $message, $boundary) {
 		$header = $this->composeHeader($sender, $receiver, $boundary);
+		$subject = mb_encode_mimeheader($subject, "UTF-8", "B");
 
 		if(!mail($receiver, $subject, $message, $header)) {
-			throw new MailNoSentException("Erreur lors de l'envoi du mail.");
+			$htmlError = "<b>Une erreur est survenue lors de l'envoi du courriel.</b><br /><br />
+							Vous pouvez nous contacter soit <br />
+							<ul><li>par téléphone au 02 35 37 57 72</li><li>par courriel : <a href='mailto:fch@fch-capoulade.fr'>fch@fch-capoulade.fr</a></li></ul>";
+
+			throw new MailNoSentException($htmlError);
 			$this->logger->error($sender, $receiver, $subject, $message);
 		}
 		$this->logger->info($sender, $receiver, $subject, $message);
